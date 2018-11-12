@@ -1,18 +1,15 @@
 #include<bits/stdc++.h>
 #include<iostream>
 using namespace std;
-int main_memory_size=20;
-
+int main_memory_size=2500;
 
 vector<int>employee_page_table(1000);
 vector<int>department_page_table(100);
 vector<int>project_page_table(500);
 vector<int>main_memory(main_memory_size);
 string reference_pattern="";
-long long page_fault_count=0;
-
-
-
+long long lru_page_fault_count=0;
+long long mfu_page_fault_count=0;
 
 class MFUCache{
     // store keys of cache 
@@ -37,16 +34,10 @@ void MFUCache::refer(int x){
 
     if (ma.find(x) == ma.end()) { 
         // cache is full 
-            page_fault_count++; 
+            mfu_page_fault_count++; 
         if (dq.size() == csize){ 
             //delete least recently used element 
             int last = dq.front();
-            if(last>1000){
-                department_page_table[last-1000-1]=0;
-            }
-            else{
-                employee_page_table[last-1]=0;
-            }
             dq.pop_front();
             ma.erase(last);
         }
@@ -84,7 +75,7 @@ LRUCache::LRUCache(int n){
 void LRUCache::refer(int x){ 
     // not present in cache 
     if (ma.find(x) == ma.end()) { 
-    	page_fault_count++;
+    	lru_page_fault_count++;
         // cache is full 
         if (dq.size() == csize){ 
             //delete least recently used element 
@@ -104,39 +95,148 @@ void LRUCache::refer(int x){
 }
 
 
-MFUCache lru_available_buffers(main_memory_size);
+LRUCache lru_available_buffers_1(main_memory_size);
+LRUCache lru_available_buffers_2(main_memory_size);
+LRUCache lru_available_buffers_3(main_memory_size);
+LRUCache lru_available_buffers_4(main_memory_size);
+
+MFUCache mfu_available_buffers_1(main_memory_size);
+MFUCache mfu_available_buffers_2(main_memory_size);
+MFUCache mfu_available_buffers_3(main_memory_size);
+MFUCache mfu_available_buffers_4(main_memory_size);
 // MFUCache mfu_available_buffers(main_memory_size);
 
-void get_page_number_for_employee(int i){
-    // if(!employee_page_table[i-1]){ //if the block is not in main memory, serve the page fault
-        lru_available_buffers.refer(i);
-        // employee_page_table[i-1]=1;
-    // }
+void get_page_number_for_employee(int i,int num){
+	if(num==1){
+    	lru_available_buffers_1.refer(i);
+    	mfu_available_buffers_1.refer(i);
+	}
+	if(num==2){
+    	lru_available_buffers_2.refer(i);
+    	mfu_available_buffers_2.refer(i);
+	}
+	if(num==3){
+    	lru_available_buffers_3.refer(i);
+    	mfu_available_buffers_3.refer(i);
+	}
+	if(num==4){
+    	lru_available_buffers_4.refer(i);
+    	mfu_available_buffers_4.refer(i);
+	}
 }
 
-void get_page_number_for_department(int j){
-    // if(!department_page_table[j-1]){ //if the block is not in main memory, serve the page fault
-        lru_available_buffers.refer(j+1000);
-        // department_page_table[j-1]=1;
-    // }
+void get_page_number_for_department(int j,int num){
+	if(num==1){
+    	lru_available_buffers_1.refer(j+1000);
+    	mfu_available_buffers_1.refer(j+1000);
+	}
+	if(num==2){
+    	lru_available_buffers_2.refer(j+1000);
+    	mfu_available_buffers_2.refer(j+1000);
+	}
+	if(num==3){
+    	lru_available_buffers_3.refer(j+1000);
+    	mfu_available_buffers_3.refer(j+1000);
+	}
+	if(num==4){
+    	lru_available_buffers_4.refer(j+1000);
+    	mfu_available_buffers_4.refer(j+1000);
+	}
+}
+
+void get_page_number_for_project(int j,int num){
+	if(num==1){
+    	lru_available_buffers_1.refer(j+1100);
+    	mfu_available_buffers_1.refer(j+1100);
+	}
+	if(num==2){
+    	lru_available_buffers_2.refer(j+1100);
+    	mfu_available_buffers_2.refer(j+1100);
+	}
+	if(num==3){
+    	lru_available_buffers_3.refer(j+1100);
+    	mfu_available_buffers_3.refer(j+1100);
+	}
+	if(num==4){
+    	lru_available_buffers_4.refer(j+1100);
+    	mfu_available_buffers_4.refer(j+1100);
+	}
 }
 
 void implement_query1(){
-    for(int i=1;i<=1000;i++){    //as there are 10000 blocks of employee, iterate all of them!
-        get_page_number_for_employee(i);
+    for(int i=1;i<=1000;i++){   
+        get_page_number_for_employee(i,1);
         for(int j=1;j<=100;j++){
-            get_page_number_for_department(j);
+            get_page_number_for_department(j,1);
             for(int k=0;k<10;k++){
-       			get_page_number_for_employee(i);
+       			get_page_number_for_employee(i,1);
                 for(int l=0;l<10;l++){
-			        get_page_number_for_department(j);
+			        get_page_number_for_department(j,1);
                 }
             }
         }
     }
 }
 
+void implement_query2(){
+    for(int i=1;i<=100;i++){    
+        get_page_number_for_department(i,2);
+        for(int j=1;j<=1000;j++){
+            get_page_number_for_employee(j,2);
+            for(int k=0;k<10;k++){
+       			get_page_number_for_department(i,2);
+                for(int l=0;l<10;l++){
+			        get_page_number_for_employee(j,2);
+                }
+            }
+        }
+    }
+}
+
+void implement_query3(){
+    for(int i=1;i<=500;i++){    
+        get_page_number_for_project(i,3);
+        for(int j=1;j<=100;j++){
+            get_page_number_for_department(j,3);
+            for(int k=0;k<10;k++){
+       			get_page_number_for_project(i,3);
+                for(int l=0;l<10;l++){
+			        get_page_number_for_department(j,3);
+                }
+            }
+        }
+    }
+}
+
+void implement_query4(){
+    for(int i=1;i<=100;i++){    
+        get_page_number_for_department(i,4);
+        for(int j=1;j<=500;j++){
+            get_page_number_for_project(j,4);
+            for(int k=0;k<10;k++){
+       			get_page_number_for_department(i,4);
+                for(int l=0;l<10;l++){
+			        get_page_number_for_project(j,4);
+                }
+            }
+        }
+    }
+}
+
+
 int main(){
     implement_query1();
-    cout<<page_fault_count<<endl;
+    cout<<lru_page_fault_count<<" "<<mfu_page_fault_count<<endl;
+    lru_page_fault_count=0;
+    mfu_page_fault_count=0;
+    implement_query2();
+    cout<<lru_page_fault_count<<" "<<mfu_page_fault_count<<endl;
+    lru_page_fault_count=0;
+    mfu_page_fault_count=0;
+    implement_query3();
+    cout<<lru_page_fault_count<<" "<<mfu_page_fault_count<<endl;
+    lru_page_fault_count=0;
+    mfu_page_fault_count=0;
+    implement_query4();
+    cout<<lru_page_fault_count<<" "<<mfu_page_fault_count<<endl;
 }
