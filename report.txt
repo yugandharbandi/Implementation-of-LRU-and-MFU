@@ -1,0 +1,20 @@
+Common for MFU & LRU:
+Between query1 & query2, employee being the outer relation in query1 has more number of blocks which results in more number of page faults.
+Between query3 and query4, as project has more number of blocks and as it is in the outer realtion in query3, it results in more number of page faults.
+
+It is observed that LRU is never under performing MFU. One of the reasons can be, as MFU is removing the most recently used pages, it is evicting the pages that
+have more probability of being used in future window. As it is applied on nested loop join where most recently used pages have high p for getting reused, it even
+worse the situation.
+
+When more than required buffers are supplied, page faults occur only when the required pages are referenced for the first time. There is no need for eviction that
+means, there is no action of LRU and MFU. This behaviour is observed when 1,500 buffers are supplied in case of query1 and query2 and when 600 buffers are supplied 
+in case of query3 and query4.
+
+LRU:
+For query1, 102 buffers are enough. 100 for inner, 1 for outer and 1 to make sure that first inner block doesn't get evicted when the loop is completed.
+For query2, query3, query4: 1002, 102, 502 buffers are optimal resp.
+i.e inner+2 blocks.
+MFU:
+Since this is targetting most frequently used page, it needs outer+inner blocks.
+
+When the number of buffers increase, the page faults decreases till some point where the increase in buffers can't decrease the page fault count.
